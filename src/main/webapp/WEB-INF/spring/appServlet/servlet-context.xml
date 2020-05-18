@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<annotation-driven />
+
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<context:component-scan
+		base-package="com.spring.controller" />
+	
+	<!-- aop interface 관련 설정(dao / service 상속시 문제 발생했었음 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	
+	<!-- interceptor session 로그인 여부 확인 -->
+	<beans:bean id="loginInterceptor"
+		class="com.spring.interceptor.LoginInterceptor" />
+	<interceptors>
+		<interceptor>
+			<mapping path="/board/view/write" />
+			<beans:ref bean="loginInterceptor" />
+		</interceptor>
+	</interceptors>
+	
+	<!-- interceptor session 게시물 작성 유저 본인 여부 확인 -->
+	<beans:bean id="sessionInterceptor"
+		class="com.spring.interceptor.SessionInterceptor" />
+	<interceptors>
+		<interceptor>
+			<mapping path="/board/view/edit" />
+			<beans:ref bean="sessionInterceptor" />
+		</interceptor>
+	</interceptors>
+</beans:beans>
